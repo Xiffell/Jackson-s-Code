@@ -1,0 +1,4 @@
+name|type|hp|stamina|defense|condition|advantage|elemental weakness|gold|starting items|number of items|ultimate
+The Laestrygonian King|E|220|100|55|H|True|E|95|Health Potion, King's Blade|1,1|none
+Scylla|E|200|75|75|H|True|E|100|Health Potion, Fangs of Scylla|1,1|none
+Cyclops|E|200|75|75|H|True|E|100|Health Potion, Cyclops Gaze|1,1|none
