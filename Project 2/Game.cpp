@@ -1,11 +1,15 @@
 #include <iostream>
 #include "Entity.h"
 #include "Game.h"
+#include "Entity.cpp"
 
 #include <vector>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <fstream>
+#include <sstream>
+#include <string>
 
 int Game::combat(Entity player, Entity enemy)
 {
@@ -115,12 +119,27 @@ int Game::combat(Entity player, Entity enemy)
                     // (implement use potion function here)
                     break;
                 case 3:
-                    // Player swaps their weapon
-                    // (implement swap weapon function here)
+                    cout << "Player inventory:" << endl;
+                    for (int i = 0; i < player.getInventorySize(); ++i)
+                    {
+                        cout << i + 1 << ". " << player.getInventoryItem(i)._name << endl;
+                    }
+                    cout << "Enter number of the equipment you want to swap: " << endl;
+                    int index;
+                    cin >> index;
+                    player.swap(index - 1);
                     break;
                 case 4:
-                    // Player attempts to run
-                    // (implement run function here)
+                    int can_run = 0;
+                    can_run = (rand() % 25) + 1;
+                    if (can_run > 5)
+                    {
+                        in_combat = false;
+                    }
+                    else
+                    {
+                        in_combat = true;
+                    }
                     break;
                 default:
                     cout << "Invalid choice!" << endl;
@@ -162,7 +181,27 @@ int Game::epicCombat(Entity player1, Entity player2)
     */
 }
 
-void Game::shop(vector<Potion> all_potions, vector<Equipment> all_equip)
+Equipment *Game::updatePotionShop(vector<Equipment> allPotions)
+{
+    for (int i = 0; i < 3; i++)
+    {
+        _current_item_shop[i] = allPotions[(rand() % allPotions.size())];
+    }
+
+    return _current_potion_shop;
+}
+
+Equipment *Game::updateItemShop(vector<Equipment> allItems)
+{
+    for (int i = 0; i < 3; i++)
+    {
+        _current_item_shop[i] = allItems[(rand() % allItems.size())];
+    }
+
+    return _current_item_shop;
+}
+
+void Game::shop(Entity player)
 {
     /*
     1. roll for what to display
@@ -170,18 +209,16 @@ void Game::shop(vector<Potion> all_potions, vector<Equipment> all_equip)
     3. check if valid gold amount
     4. add item to inventory
     */
-    const int num_potions = 4;
-    // initaialize shop
-    int rand_num = (rand() % num_potions);
-
     // make menu
     bool in_shop = true;
+    updateItemShop(_allEquip);
+    updatePotionShop(_allPotions);
     while (in_shop)
     {
         int choice = 0;
         while (true)
         {
-            cout << "1. Buy Weapon" << endl
+            cout << "1. Buy Equipment" << endl
                  << "2. Buy Potion" << endl
                  << "3. Leave Shop" << endl;
             cin >> choice;
@@ -200,9 +237,145 @@ void Game::shop(vector<Potion> all_potions, vector<Equipment> all_equip)
 
         if (choice == 1)
         {
+            cout << "Welcome to the equipment shop!" << endl;
+            int choice = 0;
+            while (true)
+            {
+                cout << "1. " << _current_item_shop[0]._name << "Price: " << _current_item_shop[0]._price << endl
+                     << "2. " << _current_item_shop[1]._name << "Price: " << _current_item_shop[1]._price << endl
+                     << "3. " << _current_item_shop[2]._name << "Price: " << _current_item_shop[2]._price << endl;
+                cin >> choice;
+                if (cin.fail() || choice < 1 || choice > 3)
+                {
+                    cout << "Invalid input" << endl;
+                    cin.clear();
+                    cin.ignore(10000, '\n');
+                }
+                else
+                {
+                    cin.ignore();
+                    break; // Input is valid, exit the loop
+                }
+            }
+            if (choice == 1)
+            {
+                if (player.getGold() >= _current_item_shop[0]._price)
+                {
+                    cout << "You have bought " << _current_item_shop[0]._name << endl;
+                    player.setGold(player.getGold() - _current_item_shop[0]._price);
+                    cout << "Gold Remaining: " << player.getGold() << endl;
+                    player.addToInventory(_current_item_shop[0]);
+                    break;
+                }
+                else
+                {
+                    cout << "You don't have enough gold!!" << endl;
+                    break;
+                }
+            }
+            else if (choice == 2)
+            {
+                if (player.getGold() >= _current_item_shop[1]._price)
+                {
+                    cout << "You have bought " << _current_item_shop[1]._name << endl;
+                    player.setGold(player.getGold() - _current_item_shop[1]._price);
+                    cout << "Gold Remaining: " << player.getGold() << endl;
+                    player.addToInventory(_current_item_shop[1]);
+                    break;
+                }
+                else
+                {
+                    cout << "You don't have enough gold!!" << endl;
+                    break;
+                }
+            }
+            else if (choice == 3)
+            {
+                if (player.getGold() >= _current_item_shop[2]._price)
+                {
+                    cout << "You have bought " << _current_item_shop[2]._name << endl;
+                    player.setGold(player.getGold() - _current_item_shop[2]._price);
+                    cout << "Gold Remaining: " << player.getGold() << endl;
+                    player.addToInventory(_current_item_shop[2]);
+                    break;
+                }
+                else
+                {
+                    cout << "You don't have enough gold!!" << endl;
+                    break;
+                }
+            }
         }
         else if (choice == 2)
         {
+            cout << "Welcome to the potion shop!" << endl;
+            int choice = 0;
+            while (true)
+            {
+                cout << "1. " << _current_potion_shop[0]._name << "Price: " << _current_potion_shop[0]._price << endl
+                     << "2. " << _current_potion_shop[1]._name << "Price: " << _current_potion_shop[1]._price << endl
+                     << "3. " << _current_potion_shop[2]._name << "Price: " << _current_potion_shop[2]._price << endl;
+                cin >> choice;
+                if (cin.fail() || choice < 1 || choice > 3)
+                {
+                    cout << "Invalid input" << endl;
+                    cin.clear();
+                    cin.ignore(10000, '\n');
+                }
+                else
+                {
+                    cin.ignore();
+                    break; // Input is valid, exit the loop
+                }
+            }
+            if (choice == 1)
+            {
+                if (player.getGold() >= _current_potion_shop[0]._price)
+                {
+                    cout << "You have bought " << _current_potion_shop[0]._name << endl;
+                    player.setGold(player.getGold() - _current_potion_shop[0]._price);
+                    cout << "Gold Remaining: " << player.getGold() << endl;
+                    player.addToInventory(_current_potion_shop[0]);
+                    break;
+                }
+                else
+                {
+                    cout << "You don't have enough gold!!" << endl;
+                    break;
+                }
+            }
+            else if (choice == 2)
+            {
+                if (player.getGold() >= _current_potion_shop[1]._price)
+                {
+                    cout << "You have bought " << _current_potion_shop[1]._name << endl;
+                    player.setGold(player.getGold() - _current_potion_shop[1]._price);
+                    cout << "Gold Remaining: " << player.getGold() << endl;
+                    player.addToInventory(_current_potion_shop[1]);
+                    break;
+                }
+                else
+                {
+                    cout << "You don't have enough gold!!" << endl;
+                    break;
+                }
+            }
+            else if (choice == 3)
+            {
+                if (player.getGold() >= _current_potion_shop[2]._price)
+                {
+                    cout << "You have bought " << _current_potion_shop[2]._name << endl;
+                    player.setGold(player.getGold() - _current_potion_shop[2]._price);
+                    cout << "Gold Remaining: " << player.getGold() << endl;
+                    player.addToInventory(_current_potion_shop[2]);
+                    break;
+                }
+                else
+                {
+                    cout << "You don't have enough gold!!" << endl;
+                    break;
+                }
+            }
         }
         else if (choice == 3)
         {
@@ -211,9 +384,111 @@ void Game::shop(vector<Potion> all_potions, vector<Equipment> all_equip)
     }
 }
 
-void Game::loadEnity()
+vector<string> split(const string &s, char delimiter)
 {
-    // load entity and stats
+    vector<string> part;
+    // size_t is used to itterate over the entire string in the vector, and will iterate over all elements of the vector
+    size_t start = 0;
+    size_t end = s.find(delimiter);
+
+    // loop through entire string
+    while (end != string::npos /*loops as long as end doesnt equal the value string::npos(indicates delimiter was found)*/)
+    {
+        part.push_back(s.substr(start, end - start));
+        start = end + 1;                // itterates the start int
+        end = s.find(delimiter, start); // itterates to the next delimiter of the string
+    }
+
+    part.push_back(s.substr(start)); // add string to vector
+    return part;
+}
+
+void Game::loadEntity()
+{
+    ifstream file("entity.txt");
+    string line;
+    vector<Entity> entities;
+
+    if (file.is_open())
+    {
+        while (getline(file, line))
+        {
+            vector<string> entity_data = split(line, '|');
+
+            // Assuming entity_data has the correct order as specified in the project description
+            string name = entity_data[0];
+            string type = entity_data[1];
+            double hp = stod(entity_data[2]);
+            double stamina = stod(entity_data[3]);
+            double defense = stod(entity_data[4]);
+            char condition = entity_data[5][0];
+            bool advantage = entity_data[6] == "True";
+            string elemental_weakness = entity_data[7];
+            int gold = stoi(entity_data[8]);
+            string ultimate = entity_data[11];
+
+            // create new vectors for items
+            vector<string> starting_items = split(entity_data[9], ',');
+            vector<string> num_items_s = split(entity_data[10], ',');
+
+            // loop that will convert vector of number strings to
+            vector<int> num_items;
+            for (const auto &item : num_items_s) // const auto doesnt modify the item variable and auto tells the compiler to fingure out the variable type, &points to the item reference and num items string is whwt aiot will be looping over
+            {
+                num_items.push_back(stoi(item));
+            }
+
+            Entity entity(name, type, hp, stamina, defense, condition, advantage, elemental_weakness, gold, starting_items, num_items, ultimate);
+            entities.push_back(entity);
+        }
+
+        file.close();
+    }
+    else
+    {
+        cout << "Unable to open file" << endl;
+    }
+
+    _entities = entities;
+}
+void Game::loadItems()
+{
+    ifstream file("items.txt"); // Open the items.txt file
+    string line;
+    vector<Equipment> items; // Vector to store loaded items
+
+    if (file.is_open())
+    {
+        while (getline(file, line))
+        {
+            vector<string> item_data = split(line, '|'); // Split the line into fields
+
+            // Assuming item_data has the correct order as specified in the project description
+            string name = item_data[0];
+            string description = item_data[1];
+            char type = item_data[2][0]; // Convert the type character to char
+            double effect_value = stod(item_data[3]);
+            char element = item_data[4][0]; // Convert the element character to char
+            double price = stod(item_data[5]);
+
+            // Create a new item and add it to the vector
+            Equipment item(name, description, type, effect_value, element, price);
+            if (type == 'P')
+            {
+                _allPotions.push_back(item);
+            }
+            else
+            {
+                _allEquip.push_back(item);
+            }
+        }
+
+        file.close(); // Close the file after reading
+    }
+    else
+    {
+        cout << "Unable to open file" << endl;
+    }
 }
 
 void Game::playGame()
