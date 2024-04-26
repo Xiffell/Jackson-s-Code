@@ -3,29 +3,19 @@
 
 #include <iostream>
 #include <vector>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 
 using namespace std;
 
-struct Potion
-{
-    string name;
-    char type;
-    double effect_value;
-    int quantity;
-};
-
 struct Equipment
 {
-    string name;
-    char type;
-    char element;
-    double damage;
-    double defense;
-    double price;
-    Equipment() : name(""), type('\0'), element('\0'), damage(0.0), defense(0.0), price(0.0) {}
+    string _name;
+    string _description;
+    char _type;
+    double _effect_value;
+    char _element;
+    double _price;
+    Equipment();
+    Equipment(string, string, char, double, char, double);
 };
 
 class Entity
@@ -33,7 +23,7 @@ class Entity
 public:
     // Constructor
     Entity();
-
+    Entity (string name, string , double hp, double stamina, double defense, char condition, bool advantage, string elemental_weakness, int gold, vector<string> starting_items, vector<int> num_items,  string ultimate);
     // setters and getters
     void setName(string);
     void setHP(double);
@@ -50,6 +40,21 @@ public:
     char getCondition() const;
     bool getAdvantage() const;
     int getGold() const;
+    
+
+
+
+    string getUltimate() const;
+    void setUltimate(string);
+
+    const vector<string>&  getStartingItems() const;
+    void setStartingItems(vector<string>);
+
+    const vector<int>&  getNumItems() const;
+    void setNumItems(vector<int>);
+
+    string getElementalWeakness() const;
+    void setElementalWeakness(string);
 
     Equipment getEquippedWeapon() const;
     double getEquippedWeaponDamage() const;
@@ -60,8 +65,11 @@ public:
     // function to drop weapons or items
     void drop(int userChoice);
     void usePotion(int userChoice);
-    void updateEquipment(int equipIndex, Equipment weapon);
-    void printEntityStats(Entity entity);
+    void printEntityStats(Entity entity) const;
+    void addToInventory(Equipment);
+
+    int getInventorySize() const;
+    Equipment getInventoryItem(int);
 
 private:
     string _name;
@@ -71,8 +79,13 @@ private:
     char _condition;
     bool _advantage;
     int _gold;
+    string _elemental_weakness;
+    vector<string> _starting_items;
+    vector<int> _num_items;
+    string _ultimate;
+
     // vector of all potions that are currently held by the player (max 3 slots for 3 stacks of potions)
-    vector<Potion> _potions;
+    vector<Equipment> _entity_potions;
     // vector of all equiped equipment(max 2 pieces(w,w||w,s))
     vector<Equipment> _equipped;
     // vector of all things the player owns but does not have equipped
