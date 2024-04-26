@@ -19,20 +19,27 @@ public:
     int combat(Entity player, Entity enemy);
     int epicCombat(Entity player1, Entity player2);
     // fucntion that takes in potion and equip vectors than randomizes wghat is displayed on the shop menu
-    void shop(vector<Potion> all_potions, vector<Equipment> all_equip);
+    void shop(Entity);
     // loads info of plaeyrs and enemies, and then creates entities using that information
-    void loadEnity();
+    void loadEntity();
+    void loadItems();
     // controls the game
     void playGame();
-    void loadShop();
+    void shop(vector<Equipment>,vector<Equipment>);
+    Equipment* updatePotionShop(vector<Equipment>);
+    Equipment* updateItemShop(vector<Equipment>);
 
 private:
     Entity _players;
     Entity _enemies;
     //contains all possible potions
-    vector<Potion> _allPotions;
+    vector<Equipment> _allPotions;
     //contains all possible equipment
     vector<Equipment> _allEquip;
+    //contains all entities
+    vector<Entity> _entities;
+    Equipment _current_potion_shop[3];
+    Equipment _current_item_shop[3];
     string _item_shop[2][3];
 };
 
